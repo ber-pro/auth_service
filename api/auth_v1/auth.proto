@@ -8,11 +8,26 @@ import "google/protobuf/empty.proto";
 
 option go_package = "github.com/ber-pro/auth/grpc/pkg/auth_v1;auth_v1";
 
-service NoteV1 {
+service AuthV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc Get(GetRequest) returns (GetResponse);
   rpc Update(UpdateRequest) returns (google.protobuf.Empty);
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+}
+
+message UserInfo {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string password_confirm = 4;
+  Role role = 5;
+}
+
+message User {
+  int64 id = 1;
+  UserInfo user = 2;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
 
 enum Role {
@@ -21,11 +36,7 @@ enum Role {
 }
 
 message CreateRequest {
-  string name = 1;
-  string email = 2;
-  string password = 3;
-  string password_confirm = 4;
-  Role role = 5;
+  UserInfo user = 1;
 }
 
 message CreateResponse {
@@ -37,19 +48,15 @@ message GetRequest {
 }
 
 message GetResponse {
-  int64 id = 1;
-  string name = 2;
-  string email = 3;
-  Role role = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  User user = 1;
 }
 
 message UpdateRequest {
   int64 id = 1;
   google.protobuf.StringValue name = 2;
   google.protobuf.StringValue email = 3;
-  Role role = 4;
+  google.protobuf.StringValue password = 4;
+  Role role = 5;
 }
 
 message DeleteRequest {
