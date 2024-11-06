@@ -2,8 +2,6 @@ include .env
 
 LOCAL_BIN=$(CURDIR)/bin
 
-LOCAL_MIGRATION_DIR=$(MIGRATION_DIR)
-LOCAL_MIGRATION_DSN="host=localhost port=$(PG_PORT) dbname=$(PG_DATABASE_NAME) user=$(PG_USER) password=$(PG_PASSWORD) sslmode=disable"
 
 
 install-deps:
@@ -20,19 +18,22 @@ generate:
 
 
 generate-note-api:
-	mkdir -p pkg/auth_v1
-	protoc --proto_path api/auth_v1 \
-	--go_out=pkg/auth_v1 --go_opt=paths=source_relative \
+	mkdir -p pkg/user_v1
+	protoc --proto_path api/user_v1 \
+	--go_out=pkg/user_v1 --go_opt=paths=source_relative \
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
-	--go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
+	--go-grpc_out=pkg/user_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
-	api/auth_v1/auth.proto
+	api/user_v1/user.proto
 
 local-migration-status:
-	$(LOCAL_BIN)/goose --dir $(LOCAL_MIGRATION_DIR) $(GOOSE_DRIVER) $(LOCAL_MIGRATION_DSN) status -v
+	$(LOCAL_BIN)/goose --dir $(MIGRATION_DIR) $(GOOSE_DRIVER) $(PG_DSN) status -v
 
 local-migration-up:
-	$(LOCAL_BIN)/goose --dir $(LOCAL_MIGRATION_DIR) $(GOOSE_DRIVER) $(LOCAL_MIGRATION_DSN) up -v
+	$(LOCAL_BIN)/goose --dir $(MIGRATION_DIR) $(GOOSE_DRIVER) $(PG_DSN) up -v
 
 local-migration-down:
-	$(LOCAL_BIN)/goose --dir $(LOCAL_MIGRATION_DIR) $(GOOSE_DRIVER) $(LOCAL_MIGRATION_DSN) down -v
+	$(LOCAL_BIN)/goose --dir $(MIGRATION_DIR) $(GOOSE_DRIVER) $(PG_DSN) down -v
+
+run-service:
+	go run $(CURDIR)/cmd/grpc_server/main.go
